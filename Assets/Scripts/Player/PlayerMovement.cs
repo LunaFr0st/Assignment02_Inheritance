@@ -12,6 +12,10 @@ public class PlayerMovement : MonoBehaviour
     public float jumpSpeed = 10.0F;
     public float gravity = 20.0F;
     private Vector3 moveDirection = Vector3.zero;
+    void Start()
+    {
+        Camera.main.transform.SetParent(transform);
+    }
     void Update()
     {
         Mover();
@@ -39,8 +43,9 @@ public class PlayerMovement : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            GameObject clone = Instantiate(attackType[attackID], attackSpawn.transform.position, transform.rotation);
-            clone.GetComponent<Rigidbody>().AddForce(transform.right * 1000);
+            GameObject clone = Instantiate(attackType[attackID], attackSpawn.transform.position,attackSpawn.transform.rotation);
+            
+            clone.GetComponent<Rigidbody>().AddForce(attackSpawn.transform.right * 1000);
             Destroy(clone, 2);
         }
     }

@@ -21,7 +21,7 @@ public class EnemyHealth : MonoBehaviour
     { 
         
     }
-    void DamageRecieve(int damageTaken)
+    public void DamageReceive(int damageTaken)
     {
         health -= damageTaken;
         if(health <= 0)
@@ -29,7 +29,7 @@ public class EnemyHealth : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    void DamageGive(int damageDealt)
+   public void DamageGive(int damageDealt)
     {
         pHealth.DamageRecieve(damageDealt);
     }
@@ -40,4 +40,5 @@ public class EnemyHealth : MonoBehaviour
             DamageGive(damage);
         }
     }
+
 }
