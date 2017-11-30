@@ -12,6 +12,7 @@ namespace AI
         public float jumpHeight = 20f;
         public bool isMovingLeft = true;
         public bool isJumping = false;
+        public bool canJump = false;
         public float rayDist = 1f;
         private Ray leftRay;
         private Ray rightRay;
@@ -19,6 +20,7 @@ namespace AI
         private Ray backRay;
         private BoxCollider box;
         private SpriteRenderer spriteRend;
+        int layerMask = 1 << 9;
         [Range(0, 1)]
         [SerializeField]
         private float hue, saturation, value;
@@ -26,6 +28,29 @@ namespace AI
         public virtual void Update()
         {
             Move();
+            RaycastHit hitInfo;
+            if (Physics.Raycast(backRay, out hitInfo, rayDist))
+            {
+                if (hitInfo.collider.tag == "Box")
+                {
+                    canJump = true;
+                }
+                else
+                {
+                    canJump = false;
+                }
+            }
+            if (Physics.Raycast(frontRay, out hitInfo, rayDist))
+            {
+                if (hitInfo.collider.tag == "Box")
+                {
+                    canJump = true;
+                }
+                else
+                {
+                    canJump = false;
+                }
+            }
         }
         public void Move()
         {
@@ -34,8 +59,8 @@ namespace AI
             bool isLeftHitting = Physics.Raycast(leftRay, rayDist);
             bool isRightHitting = Physics.Raycast(rightRay, rayDist);
 
-            bool isFrontHitting = Physics.Raycast(frontRay, rayDist);
-            bool isBackHitting = Physics.Raycast(backRay, rayDist);
+            bool isFrontHitting = Physics.Raycast(frontRay, rayDist, layerMask);
+            bool isBackHitting = Physics.Raycast(backRay, rayDist, layerMask);
 
             if (isLeftHitting && !isRightHitting)
             {
@@ -49,7 +74,10 @@ namespace AI
             }
             if (isFrontHitting || isBackHitting)
             {
-                isJumping = true;
+                if (canJump)
+                {
+                    isJumping = true;
+                }
             }
             else
             {
@@ -66,10 +94,10 @@ namespace AI
                 dir += Vector3.up * jumpHeight;
             }
             pos += dir * movementSpeed * Time.deltaTime;
-            
+
 
             transform.position = pos;
-            
+
         }
         public virtual void Damage(int combo = 0)
         {
