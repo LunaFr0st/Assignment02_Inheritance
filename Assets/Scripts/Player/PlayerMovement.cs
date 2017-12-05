@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
     public float speed = 6.0F;
     public float jumpSpeed = 10.0F;
     public float gravity = 20.0F;
+    public bool endGame = false;
     private Vector3 moveDirection = Vector3.zero;
     void Start()
     {
@@ -50,4 +51,16 @@ public class PlayerMovement : MonoBehaviour
         }
     }
     
+    void OnTriggerEnter(Collider col)
+    {
+        if(col.tag == "EndFlag")
+        {
+            endGame = true;
+            if (endGame)
+            {
+                controller.enabled = false;
+            }
+        }
+    }
+
 }

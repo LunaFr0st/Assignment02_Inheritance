@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Inventory : MonoBehaviour
 {
@@ -13,6 +14,10 @@ public class Inventory : MonoBehaviour
 
     public SpriteRenderer spriteRend;
     public Sprite[] wandSelector;
+
+    public float roundTimer = 300;
+    public bool roundFail = false;
+
     PlayerMovement playerControl;
 
     GUIStyle boxOne;
@@ -23,7 +28,9 @@ public class Inventory : MonoBehaviour
     bool boxTwoSelected = false;
     bool boxThreeSelected = false;
 
-
+    int nextlevel = 1;
+    int currentLevel = 0;
+    float levelTimer = 0;
 
     float sW, sH;
     void Awake()
@@ -96,6 +103,19 @@ public class Inventory : MonoBehaviour
             boxTwoSelected = false;
         }
 
+        if (!playerControl.endGame)
+        {
+            roundTimer -= Time.deltaTime;
+            if (roundTimer <= 0)
+            {
+                roundFail = true;
+                roundTimer = 0;
+            }
+        }
+        if (playerControl.endGame || roundFail)
+        {
+            levelTimer += Time.deltaTime;
+        }
 
     }
     void OnGUI()
@@ -103,6 +123,8 @@ public class Inventory : MonoBehaviour
         Rect slotOne = new Rect(7 * sW, 8 * sH, sW, sH);
         Rect slotTwo = new Rect(8 * sW, 8 * sH, sW, sH);
         Rect slotThree = new Rect(9 * sW, 8 * sH, sW, sH);
+
+        GUI.Label(new Rect(14*sW,sH,2*sW,sH),roundTimer.ToString("F0"));
 
         if (GUI.Button(slotOne, "", boxOne))
         {
@@ -125,5 +147,31 @@ public class Inventory : MonoBehaviour
         GUI.Box(slotOne, "", wandFire);
         GUI.Box(slotTwo, "", wandWater);
         GUI.Box(slotThree, "", wandGas);
+
+        // End Game
+        if (playerControl.endGame)
+        {
+            GUI.Box(new Rect(0, 0, Screen.width, Screen.height), "");
+            GUI.Box(new Rect(7 * sW, 2 * sH, 3 * sW, sH), "Level Complete!");
+            
+            if(levelTimer >= 3)
+            {
+                playerControl.endGame = false;
+                SceneManager.LoadSceneAsync(nextlevel);
+                nextlevel++;
+            }
+        }
+        else if (roundFail)
+        {
+            GUI.Box(new Rect(0, 0, Screen.width, Screen.height), "");
+            GUI.Box(new Rect(7 * sW, 2 * sH, 3 * sW, sH), "");
+            playerControl.enabled = false;
+            if (levelTimer >= 3)
+            {
+                currentLevel = nextlevel - 1;
+                roundFail = false;
+                SceneManager.LoadSceneAsync(currentLevel);
+            }
+        }
     }
 }
