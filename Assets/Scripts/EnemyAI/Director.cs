@@ -6,16 +6,14 @@ namespace AI
 {
     public class Director : MonoBehaviour
     {
-        public int weighting;
-
-        public float movementSpeed = 10f;
+        public float movementSpeed = 5;
         public float jumpHeight = 20f;
         public bool isMovingLeft = true;
         public bool isJumping = false;
         public bool canJump = false;
         public bool allowedJump;
         public float rayDist = 1f;
-        public float altRayDist = 2f;
+        public float altRayDist = 1.25f;
         private Ray leftRay;
         private Ray rightRay;
         private Ray frontRay;
@@ -34,39 +32,7 @@ namespace AI
         public virtual void Update()
         {
             Move();
-            RaycastHit hitInfo;
-
-            if (Physics.Raycast(backRay, out hitInfo, rayDist))
-            {
-                if (hitInfo.collider.tag == "Box" && allowedJump)
-                    canJump = true;
-                else
-                    canJump = false;
-            }
-            if (Physics.Raycast(upperBackRay, out hitInfo, altRayDist))
-            {
-                if (hitInfo.collider.tag == "Box")
-                {
-                    allowedJump = false;
-                    Debug.Log("test B");
-                }
-
-            }
-            if (Physics.Raycast(frontRay, out hitInfo, rayDist))
-            {
-                if (hitInfo.collider.tag == "Box" && allowedJump)
-                    canJump = true;
-                else
-                    canJump = false;
-            }
-            if (Physics.Raycast(upperFrontRay, out hitInfo, altRayDist))
-            {
-                if (hitInfo.collider.tag == "Box")
-                {
-                    allowedJump = false;
-                    Debug.Log("test A");
-                }
-            }
+            
         }
         public void Move()
         {
@@ -78,8 +44,8 @@ namespace AI
             bool isFrontHitting = Physics.Raycast(frontRay, rayDist, layerMask);
             bool isBackHitting = Physics.Raycast(backRay, rayDist, layerMask);
 
-            bool isUpperFrontHitting = Physics.Raycast(upperFrontRay, altRayDist);
-            bool isUpperBackHitting = Physics.Raycast(upperBackRay, altRayDist);
+            bool isUpperFrontHitting = Physics.Raycast(upperFrontRay, (rayDist + 0.5f), layerMask);
+            bool isUpperBackHitting = Physics.Raycast(upperBackRay, (rayDist + 0.5f), layerMask);
 
             if (isLeftHitting && !isRightHitting)
             {
@@ -93,39 +59,27 @@ namespace AI
             }
             if ((isFrontHitting || isBackHitting))
             {
-                if (canJump)
-                {
-                    isJumping = true;
-                }
+
+                isMovingLeft = !isMovingLeft;
+                spriteRend.flipX = !spriteRend.flipX;
+                Debug.Log("I am hitting shitt" + gameObject.name);
             }
-            else
+            if (isUpperBackHitting || isUpperFrontHitting)
             {
+                canJump = false;
                 isJumping = false;
             }
-            if (isUpperFrontHitting && !isUpperBackHitting)
+            else if (!(isUpperBackHitting || isUpperFrontHitting))
             {
-                canJump = false;
-                allowedJump = false;
-                isLeftHitting = false;
-                isRightHitting = true;
+                canJump = true;
             }
-            if (isUpperBackHitting && !isUpperFrontHitting)
-            {
-                canJump = false;
-                allowedJump = false;
-                isLeftHitting = true;
-                isRightHitting = false;
-            }
+
             Vector3 dir = Vector3.zero;
             if (isMovingLeft)
                 dir += Vector3.left;
             else
                 dir += Vector3.right;
 
-            if (isJumping)
-            {
-                dir += Vector3.up * jumpHeight;
-            }
             pos += dir * movementSpeed * Time.deltaTime;
 
 
@@ -152,8 +106,8 @@ namespace AI
             Gizmos.DrawLine(frontRay.origin, frontRay.origin + frontRay.direction * rayDist);
             Gizmos.DrawLine(backRay.origin, backRay.origin + backRay.direction * rayDist);
 
-            Gizmos.DrawLine(upperFrontRay.origin, upperFrontRay.origin + upperFrontRay.direction * (altRayDist));
-            Gizmos.DrawLine(upperBackRay.origin, upperBackRay.origin + upperBackRay.direction * (altRayDist));
+            Gizmos.DrawLine(upperFrontRay.origin, upperFrontRay.origin + upperFrontRay.direction * (rayDist + 0.25f));
+            Gizmos.DrawLine(upperBackRay.origin, upperBackRay.origin + upperBackRay.direction * (rayDist + 0.25f));
         }
         private void RecalculateRays()
         {
@@ -163,8 +117,8 @@ namespace AI
             Vector3 frontPos = transform.position - Vector3.left * halfSize.x + Vector3.left * (halfSize.y - 0.2f);
             Vector3 backPos = transform.position - Vector3.right * halfSize.x + Vector3.right * (halfSize.y - 0.2f);
 
-            Vector3 upperFrontPos = (transform.position + new Vector3(0, 0.25f, 0)) - Vector3.left * halfSize.y + Vector3.left * (halfSize.x - 0.25f);
-            Vector3 upperBackPos = (transform.position + new Vector3(0, 0.25f, 0)) - Vector3.right * halfSize.y + Vector3.right * (halfSize.x - 0.25f);
+            Vector3 upperFrontPos = (transform.position + new Vector3(0, 0.3f, 0)) - Vector3.left * halfSize.x + Vector3.left * (halfSize.y - 0.25f);
+            Vector3 upperBackPos = (transform.position + new Vector3(0, 0.3f, 0)) - Vector3.right * halfSize.x + Vector3.right * (halfSize.y - 0.25f);
 
             leftRay = new Ray(leftPos, Vector3.down);
             rightRay = new Ray(rightPos, Vector3.down);

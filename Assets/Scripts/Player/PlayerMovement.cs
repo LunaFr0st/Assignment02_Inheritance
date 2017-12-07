@@ -12,10 +12,16 @@ public class PlayerMovement : MonoBehaviour
     public float jumpSpeed = 10.0F;
     public float gravity = 20.0F;
     public bool endGame = false;
+    SpriteRenderer sP;
+    SpriteRenderer wandSP;
+    SpriteRenderer armSP;
     private Vector3 moveDirection = Vector3.zero;
     void Start()
     {
         Camera.main.transform.SetParent(transform);
+        sP = GameObject.Find("Hero(Clone)").GetComponent<SpriteRenderer>();
+        wandSP = GameObject.Find("Wand").GetComponent<SpriteRenderer>();
+        armSP = GameObject.Find("ArmHero").GetComponent<SpriteRenderer>();
     }
     void Update()
     {
@@ -24,6 +30,17 @@ public class PlayerMovement : MonoBehaviour
         if(transform.position.z > 0 || transform.position.z < 0)
         {
             transform.position = new Vector3(transform.position.x, transform.position.y, 0);
+        }
+
+        if(Input.GetAxis("Horizontal") < 0)
+        {
+            sP.flipX = true;
+            armSP.flipX = true;
+        }
+        else if (Input.GetAxis("Horizontal") > 0)
+        {
+            sP.flipX = false;
+            wandSP.flipX = false;
         }
     }
     void Mover()
